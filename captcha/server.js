@@ -16,13 +16,13 @@ app.use(bodyParser.urlencoded({
 // All post requests to this endpoint are handled here.
 app.post('/capture', function (req, res){
 
-	console.log(secureConfig.secret_key)
-
 	// We know the response contains this, so extract it.
 	var response = req.body['g-recaptcha-response'];
 
+	console.log(secureConfig.secret_key)
+
 	var verify_data = querystring.stringify({
-		'secret' : 'secureConfig.secret_key',
+		'secret' : secureConfig.secret_key,
 		'response': response
 	});
 
