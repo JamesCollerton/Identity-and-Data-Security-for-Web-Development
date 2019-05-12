@@ -1,6 +1,20 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
+// Encrypting
+
+function bcrypt_decrypt(unhashedPassword, salt, hashedPassword) {
+	bcrypt.hash(unhashedPassword, salt, function(err, key) {
+		console.log("bcrypt hash " + key)
+		console.log("bcrypt Store the salt: " + salt + " and hash: " + key)
+		if(hashedPassword === key) {
+			console.log("Successful decryption")
+		} else {
+			console.log("Unsuccessful decryption")
+		}
+	});	
+}
+
 // Easy to handle for CPU, hard for GPU so resistant to GPU updates
 // Slow, which is good as takes longer for iterations
 function bcrypt_encrypt(username, password) {
@@ -11,6 +25,7 @@ function bcrypt_encrypt(username, password) {
 		bcrypt.hash(password, salt, function(err, key) {
 			console.log("bcrypt hash " + key)
 			console.log("bcrypt Store the salt: " + salt + " and hash: " + key)
+			bcrypt_decrypt(password, salt, key)
 		});
 	});
 }
@@ -40,3 +55,4 @@ pbkdf2_encrypt('James', 'password')
 // Scrypt
 
 // Library doesn't work at the minute, but the point of this algorithm is that it's purposefully hardware intensive. It can take in things like N, the maximum amount of time it takes in seconds, r, the maximum number of RAM bytes, p the fraction of available RAM used when computing the derived key.
+
