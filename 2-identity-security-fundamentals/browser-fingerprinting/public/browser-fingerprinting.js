@@ -1,5 +1,3 @@
-
-
 // The following facets are all considered in browser fingerprinting:
 // 	User Agent
 // 	Plugins
@@ -10,4 +8,6 @@
 // 	Timezone
 // 	Cookies Enabled
 
+var agent = navigator.userAgent;
 
+console.log(`User agent ${agent}`)

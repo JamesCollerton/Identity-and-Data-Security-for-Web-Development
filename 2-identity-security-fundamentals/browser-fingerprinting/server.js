@@ -9,12 +9,7 @@ app.use(express.static('public'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// All post requests to this endpoint are handled here.
-app.get('/capture', function (req, res){
-
-	console.log("Hello, world")
-
-});
+console.log("Bringing up server")
 
 app.listen(process.env.PORT || 8000);
 
