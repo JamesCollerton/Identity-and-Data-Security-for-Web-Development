@@ -29,3 +29,21 @@ if(plugins.length < 1) {
 for (var i = 0; i < plugins.length; i++){
 	console.log(`Plugin ${plugins[i].name}`);
 }
+
+//on success handler
+function success(position){
+	console.log('lat: ' + position.coords.latitude);
+	console.log('lon: ' + position.coords.longitude);
+}
+
+//error handler
+function failure(err){
+	console.log(err);
+}
+
+//check geolocation browser availability and capture coordinates
+if ('geolocation' in navigator){
+	navigator.geolocation.getCurrentPosition(success, failure, {timeout:10000});
+} else {
+	console.log('geolocation is not available');
+}
