@@ -7,12 +7,10 @@ const 	querystring = require('querystring'),
 //support JSON & URL encoded bodies
 app.use(express.static('public'))
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
+app.use(bodyParser.urlencoded({extended: true}));
 
 // All post requests to this endpoint are handled here.
-app.post('/capture', function (req, res){
+app.get('/capture', function (req, res){
 
 	console.log("Hello, world")
 
