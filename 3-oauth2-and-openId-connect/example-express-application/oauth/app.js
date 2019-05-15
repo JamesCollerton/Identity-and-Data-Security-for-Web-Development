@@ -7,8 +7,13 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+// Mongoose and connection to Mongo
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/oauth');
+
+// Generating tokens
+var uuid = require('node-uuid');
+var token = uuid.v4();
 
 var app = express();
 
