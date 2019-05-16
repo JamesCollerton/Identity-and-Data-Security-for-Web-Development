@@ -1,8 +1,13 @@
+var express = require('express');
+var router = express.Router();
+
 const uuid = require('node-uuid');
 const Client = require('../lib/models/client');
 const AuthCode = require('../lib/models/authcode');
 
-router.get('/authorize', function(req, res, next) {	
+router.get('/', function(req, res, next) {	
+
+	console.log("In authorize")
 
 	var responseType = req.query.response_type;
 	var clientId = req.query.client_id;
@@ -10,14 +15,19 @@ router.get('/authorize', function(req, res, next) {
 	var scope = req.query.scope;
 	var state = req.query.state;
 
+	console.log("Set all variables")
+
 	if (!responseType) {
 		// cancel the request - we miss the response type
+		console.log("Cancel the request - missing response type")
 	}
 	if (responseType !== 'code') {
 		// notify the user about an unsupported response type
+		console.log("Unsupported response type")
 	}
 	if (!clientId) {
 		// cancel the request - client id is missing
+		console.log("Cancel the request - client Id is missing")
 	}
 	
 	Client.findOne({
@@ -61,3 +71,6 @@ router.get('/authorize', function(req, res, next) {
 		}
 	});
 });
+
+module.exports = router;
+
