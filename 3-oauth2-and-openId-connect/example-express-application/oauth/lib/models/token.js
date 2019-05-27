@@ -1,6 +1,10 @@
 var mongoose = require('mongoose');
 var uuid = require('node-uuid');
 
+/*
+	This is the actual access token itself. It can be paired with a refresh token
+	so that it refreshes after 3 minutes
+*/
 var TokenModel = function() {
 
 	var tokenSchema = mongoose.Schema({

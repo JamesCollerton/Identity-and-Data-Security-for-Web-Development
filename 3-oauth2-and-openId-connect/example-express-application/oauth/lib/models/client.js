@@ -1,6 +1,9 @@
 var mongoose = require('mongoose');
 var uuid = require('node-uuid');
 
+/*
+	This is the client sending the request.
+*/
 var ClientModel = function() {
 
 	var clientSchema = mongoose.Schema({
@@ -15,4 +18,5 @@ var ClientModel = function() {
 
 	return mongoose.model('Client', clientSchema);
 };
+
 module.exports = new ClientModel();

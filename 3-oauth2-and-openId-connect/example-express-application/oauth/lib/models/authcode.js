@@ -1,6 +1,10 @@
 var mongoose = require('mongoose');
 var uuid = require('node-uuid');
 
+/*
+	This is the authorization code the client issues. Different to the access token which
+	will be granted elsewhere in order to give access to resources.
+*/
 var AuthCodeModel = function() {
 	
 	var authCodeSchema = mongoose.Schema({

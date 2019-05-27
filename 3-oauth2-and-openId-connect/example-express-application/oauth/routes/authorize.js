@@ -5,9 +5,20 @@ const uuid = require('node-uuid');
 const Client = require('../lib/models/client');
 const AuthCode = require('../lib/models/authcode');
 
-router.get('/', function(req, res, next) {	
+/*
+	This is the end point that is used to authorize a user, give them an 
+	authorization code. The authorization part of the server says 'this is 
+	who this person says they are'. The access part of the server says 'this 
+	person is allowed to access these resources'.
 
-	console.log("In authorize")
+	We use the clientId to identify a client to see if they are authorized, 
+	if they can log in they are given an authorization code. We then use the 
+	combination of the clientId and authorization code to give them access.
+
+	In this case we authorize them as long as we find the clientId in the 
+	database.
+*/
+router.get('/', function(req, res, next) {	
 
 	var responseType = req.query.response_type;
 	var clientId = req.query.client_id;
@@ -16,6 +27,20 @@ router.get('/', function(req, res, next) {
 	var state = req.query.state;
 
 	console.log("Set all variables")
+
+	// Save new client. We want any request to be valid and generate the
+	// auth code. 
+
+	var client = new Client({
+			clientId: clientId,
+			clientSecret: uuid.v4(),
+			name: uuid.v4(),
+			scope: scope,
+			userId: uuid.v4(),
+			redirectUri: redirectUri
+	})
+
+	client.save()
 
 	if (!responseType) {
 		// cancel the request - we miss the response type
@@ -34,6 +59,8 @@ router.get('/', function(req, res, next) {
 		clientId: clientId
 	}, function (err, client) {
 		
+		console.log(client)
+
 		if (err) {
 			// handle the error by passing it to the middleware
 			next(err);

@@ -1,6 +1,10 @@
 var mongoose = require('mongoose');
 var uuid = require('node-uuid');
 
+/*
+	This is the refresh token that is used to refresh the access token to prevent
+	access tokens being used for too long
+*/
 var RefreshTokenModel = function() {
 
 	var refreshTokenSchema = mongoose.Schema({

@@ -1,10 +1,14 @@
 var express = require('express');
 var router = express.Router();
+var authorize = require('../lib/middleware/authorize');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  console.log('In users')
-  res.send('respond with a resource');
+router.get('/', authorize, function(req, res, next) {
+  var user = {
+    name: 'Tim Messerschmidt',
+    country: 'Germany'
+  }
+  res.json(user);
 });
 
 module.exports = router;

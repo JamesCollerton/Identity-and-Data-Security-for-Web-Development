@@ -1,9 +1,16 @@
+var express = require('express');
+var router = express.Router();
+
 var AuthCode = require('../lib/models/authcode');
 var Client = require('../lib/models/client');
 var Token = require('../lib/models/token');
 var RefreshToken = require('../lib/models/refreshtoken');
 
-router.post('/', function (req, res) {
+/*
+	This is the end point that is used to issue the tokens themselves. We take
+	the code as authorized if it exists in our database.
+*/
+router.post('/', function (req, res, next) {
 	
 	var grantType = req.body.grant_type;
 	var authCode = req.body.code;
@@ -44,6 +51,9 @@ router.post('/', function (req, res) {
 				if (!client) {
 					// the client id provided was a mismatch or does not exist
 				}
+
+				// Issuing a refresh token to go along with the access token so we
+				// can keep refreshing the login token as long as we need.
 				var _refreshToken = new RefreshToken({
 					userId: code.userId
 				});
@@ -65,3 +75,5 @@ router.post('/', function (req, res) {
 		});
 	}
 });
+
+module.exports = router;
