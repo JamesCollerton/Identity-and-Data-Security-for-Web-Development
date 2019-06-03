@@ -13,6 +13,7 @@ var RefreshToken = require('../lib/models/refreshtoken');
 router.post('/', function (req, res, next) {
 	
 	var grantType = req.body.grant_type;
+	var refreshToken = req.body.refresh_token;
 	var authCode = req.body.code;
 	var redirectUri = req.body.redirect_uri;
 	var clientId = req.body.client_id;
@@ -72,6 +73,65 @@ router.post('/', function (req, res, next) {
 				};
 				res.json(response);
 			});
+		});
+
+	/*
+		Create another refresh token and access token. I would probably do this
+		every new request rather than using the access token.
+	*/
+	} else if (grantType === 'refresh_token') {
+		if (!refreshToken) {
+			// no refresh token provided - cancel
+		}
+
+		RefreshToken.findOne({
+			token: refreshToken
+		}, function (err, token) {
+
+			if (err) {
+				console.log("Error")
+				// handle the error
+			}
+			if (!token) {
+				console.log("No token")
+				// no refresh token found
+			}
+			if (token.consumed) {
+				console.log("Consumed")
+				// the token got consumed already
+			}
+			
+			console.log(token.userId)
+
+			// consume all previous refresh tokens
+			RefreshToken.updateMany({
+				userId: token.userId,
+				consumed: false
+			}, {
+				$set: {consumed: true}
+			});
+			
+			var _refreshToken = new RefreshToken({
+				userId: token.userId
+			});
+			
+			_refreshToken.save();
+
+			var _token = new Token({
+				refreshToken: _refreshToken.token,
+				userId: token.userId
+			});
+			
+			_token.save();
+			var response = {
+				access_token: _token.accessToken,
+				refresh_token: _token.refreshToken,
+				expires_in: _token.expiresIn,
+				token_type: _token.tokenType
+			};
+
+			// send the new token to the consumer
+			res.json(response);
 		});
 	}
 });
