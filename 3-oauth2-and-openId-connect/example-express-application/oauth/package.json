@@ -13,6 +13,7 @@
     "jade": "~1.11.0",
     "mongoose": "^5.5.8",
     "morgan": "~1.9.1",
-    "node-uuid": "^1.4.8"
+    "node-uuid": "^1.4.8",
+    "winston": "^3.2.1"
   }
 }
