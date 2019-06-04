@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const logger = require('../lib/util/logger')
+
 const uuid = require('node-uuid');
 const Client = require('../lib/models/client');
 const AuthCode = require('../lib/models/authcode');
@@ -26,50 +28,89 @@ router.get('/', function(req, res, next) {
 	var scope = req.query.scope;
 	var state = req.query.state;
 
-	// Save new client. We want any request to be valid and generate the
-	// auth code.
-
-	// var client = new Client({
-	// 		clientId: clientId,
-	// 		clientSecret: uuid.v4(),
-	// 		name: uuid.v4(),
-	// 		scope: scope,
-	// 		userId: uuid.v4(),
-	// 		redirectUri: redirectUri
-	// })
-
-	// client.save()
+	logger.info('Set all variables')
 
 	if (!responseType) {
-		// cancel the request - we miss the response type
-		console.log("Cancel the request - missing response type")
+		logger.info("Cancel the request - missing response type")
 	}
 	if (responseType !== 'code') {
-		// notify the user about an unsupported response type
-		console.log("Unsupported response type")
+		logger.info("Unsupported response type")
 	}
 	if (!clientId) {
-		// cancel the request - client id is missing
-		console.log("Cancel the request - client Id is missing")
+		logger.info("Cancel the request - client Id is missing")
 	}
+
+	// Check if the client exists, if it does not then we should create
+	// one in the DB
+
+	logger.info('Checking to see if client already exists')
+
+	// Client.findOne({
+	// 	clientId: clientId
+	// }, function (err, client) {
+
+	// 	if (err) {
+	// 		logger.info('Error thrown when finding client')
+
+	// 		// handle the error by passing it to the middleware
+	// 		next(err);
+	// 	}
+	// 	if (!client) {
+	// 		logger.info('No existing client, saving new client')
+
+	// 		var newClient = new Client({
+	// 			clientId: clientId,
+	// 			clientSecret: uuid.v4(),
+	// 			name: uuid.v4(),
+	// 			scope: scope,
+	// 			userId: uuid.v4(),
+	// 			redirectUri: redirectUri
+	// 		})
+
+	// 		logger.info(newClient)
+
+	// 		newClient.save()
+	// 	}
+
+	// })
 
 	Client.findOne({
 		clientId: clientId
 	}, function (err, client) {
 
 		if (err) {
+			logger.info('Error finding client')
 			// handle the error by passing it to the middleware
 			next(err);
 		}
 		if (!client) {
-			// cancel the request - the client does not exist
+			logger.info('No existing client, saving new client')
+
+			var newClient = new Client({
+				clientId: clientId,
+				clientSecret: uuid.v4(),
+				name: uuid.v4(),
+				scope: scope,
+				userId: uuid.v4(),
+				redirectUri: redirectUri
+			})
+
+			logger.info(newClient)
+
+			newClient.save()
+
+			client = newClient
 		}
 		if (redirectUri !== client.redirectUri) {
+			logger.info('Redirect URI does not match client redirect URI')
 			// cancel the request
 		}
 		if (scope !== client.scope) {
+			logger.info('Scope does not match client scope')
 			// handle the scope
 		}
+
+		logger.info('Creating new authorisation code')
 
 		var authCode = new AuthCode({
 			clientId: clientId,
@@ -79,17 +120,29 @@ router.get('/', function(req, res, next) {
 
 		authCode.save();
 
+		logger.info(authCode)
+
+		logger.info('Creating new response')
+
 		var response = {
 			state: state,
 			code: authCode.code
 		};
 
+		logger.info(response)
+
 		if (redirectUri) {
+
+			logger.info('Redirecting using redirect URI')
+
 			var redirect = redirectUri +
 			'?code=' + response.code +
 			(state === undefined ? '' : '&state=' + state);
 			res.redirect(redirect);
 		} else {
+
+			logger.info('Sending response')
+
 			res.json(response);
 		}
 	});

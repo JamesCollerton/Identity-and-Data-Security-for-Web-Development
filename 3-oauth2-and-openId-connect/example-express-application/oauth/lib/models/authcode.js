@@ -6,9 +6,9 @@ var uuid = require('node-uuid');
 	will be granted elsewhere in order to give access to resources.
 */
 var AuthCodeModel = function() {
-	
+
 	var authCodeSchema = mongoose.Schema({
-		code: { type: String, default: uuid.v4() },
+		code: { type: String, default: uuid.v4 },
 		createdAt: { type: Date, default: Date.now, expires: '10m' },
 		consumed: { type: Boolean, default: false },
 		clientId: { type: String },
