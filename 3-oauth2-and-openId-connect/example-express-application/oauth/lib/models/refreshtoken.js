@@ -9,7 +9,7 @@ var RefreshTokenModel = function() {
 
 	var refreshTokenSchema = mongoose.Schema({
 		userId: { type: String },
-		token: { type: String, default: uuid.v4() },
+		token: { type: String, default: uuid.v4 },
 		createdAt: { type: Date, default: Date.now },
 		consumed: { type: Boolean, default: false }
 	});

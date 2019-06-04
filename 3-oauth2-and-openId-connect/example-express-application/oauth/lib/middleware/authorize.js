@@ -1,5 +1,7 @@
 var Token = require('../models/token');
 
+const logger = require('../util/logger')
+
 /*
     Token middleware.
 
@@ -10,11 +12,16 @@ var Token = require('../models/token');
 var authorize = function(req, res, next) {
     var accessToken;
 
+    logger.info('In authorization middleware')
+
     // check the authorization header
     if (req.headers.authorization) {
 
         // validate the authorization header
         var parts = req.headers.authorization.split(' ');
+
+        logger.info('Found headers')
+        logger.info(parts)
 
         if (parts.length < 2) {
             // no access token got provided - cancel
@@ -30,7 +37,10 @@ var authorize = function(req, res, next) {
         accessToken = req.query.access_token || req.body.access_token;
     }
 
+    logger.info('Access token found ' + accessToken)
+
     if (!accessToken) {
+        logger.info('No access token found')
         // no access token got provided - cancel with a 401
     }
     Token.findOne({
@@ -38,15 +48,20 @@ var authorize = function(req, res, next) {
     }, function(err, token) {
         // Same as in above example
         if (err) {
+            logger.info('Error finding access token')
             // handle the error
         }
         if (!token) {
+            logger.info('No access token found')
             // no token found - cancel
         }
 
         if (token.consumed) {
+            logger.info('Token has already been consumed')
             // the token got consumed already - cancel
         }
+
+        logger.info('Updating all tokens')
 
         // consume all tokens - including the one used
         Token.update({
@@ -55,6 +70,9 @@ var authorize = function(req, res, next) {
         }, {
             $set: { consumed: true }
         });
+
+        logger.info('Token updated')
+
         // ready to access protected resources
         next();
     });

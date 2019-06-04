@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-// const winston = require('winston')
 const logger = require('../lib/util/logger')
 
 var AuthCode = require('../lib/models/authcode');
@@ -21,47 +20,46 @@ router.post('/', function (req, res, next) {
 	var redirectUri = req.body.redirect_uri;
 	var clientId = req.body.client_id;
 
-	logger.log('info', 'Authorize', {
-		grantType,
-		refreshToken,
-		authCode,
-		redirectUri,
-		clientId
-	})
+	logger.info('Set all variables')
 
 	if (!grantType) {
-		logger.log('error', 'No grant type supplied')
-		// no grant type passed - cancel this request
+		logger.info('No grant type supplied')
+		// cancel this request
 	}
 
 	if (grantType === 'authorization_code') {
 
-		logger.log('info', 'Grant type authorization code')
+		logger.info('Grant type authorization code')
 
 		AuthCode.findOne({
 			code: authCode
 		}, function(err, code) {
 			if (err) {
-				logger.log('error', 'Error finding auth code')
+				logger.info('Error finding auth code')
 				// handle the error
 			}
 			if (!code) {
-				logger.log('error', 'No auth code')
+				logger.info('No auth code')
 				// no valid authorization code provided - cancel
 			}
 			if (code.consumed) {
-				logger.log('error', 'Auth code already consumed')
+				logger.info('Auth code already consumed')
 				// the code got consumed already - cancel
 			}
+
+			logger.info('Changing the code to be consumed')
+
 			code.consumed = true;
 			code.save();
 
+			logger.info('Code now saved')
+
 			if (code.redirectUri !== redirectUri) {
-				logger.log('error', 'Code redirect URI not equal to incoming redirect URI')
+				logger.info('Code redirect URI not equal to incoming redirect URI')
 				// cancel the request
 			}
 
-			logger.log('info', 'Searching for client')
+			logger.info('Searching for client')
 
 			// validate the client id - an extra security measure
 			Client.findOne({
@@ -69,15 +67,16 @@ router.post('/', function (req, res, next) {
 			}, function(error, client) {
 
 				if (error) {
-					logger.log('error', 'Error discovering client')
+					logger.info('Error discovering client')
 					// the client id provided was a mismatch or does not exist
 				}
 				if (!client) {
-					logger.log('error', 'The client id provided was a mismatch or does not exist')
+					logger.info('The client id provided was a mismatch or does not exist')
 					// the client id provided was a mismatch or does not exist
 				}
 
-				logger.log('info', 'Found client, now creating a new refresh token', client)
+				logger.info('Found client, now creating a new refresh token')
+				logger.info(client)
 
 				// Issuing a refresh token to go along with the access token so we
 				// can keep refreshing the login token as long as we need.
@@ -86,7 +85,8 @@ router.post('/', function (req, res, next) {
 				});
 				_refreshToken.save();
 
-				logger.log('info', 'Created new refresh token', _refreshToken)
+				logger.info('Created new refresh token')
+				logger.info(_refreshToken)
 
 				var _token = new Token({
 					refreshToken: _refreshToken.token,
@@ -94,7 +94,8 @@ router.post('/', function (req, res, next) {
 				});
 				_token.save();
 
-				logger.log('info', 'Created new token', _token)
+				logger.info('Created new token')
+				logger.info(_token)
 
 				// send the new token to the consumer
 				var response = {
@@ -104,7 +105,8 @@ router.post('/', function (req, res, next) {
 					token_type: _token.tokenType
 				};
 
-				logger.log('info', 'Sending response', response)
+				logger.info('Sending response')
+				logger.info(response)
 
 				res.json(response);
 			});
@@ -116,40 +118,42 @@ router.post('/', function (req, res, next) {
 	*/
 	} else if (grantType === 'refresh_token') {
 		if (!refreshToken) {
-			logger.log('error', 'No refresh token provided')
+			logger.info('No refresh token provided')
 			// no refresh token provided - cancel
 		}
 
-		logger.log('info', 'Searching for refresh token')
+		logger.info('Searching for refresh token')
 
 		RefreshToken.findOne({
 			token: refreshToken
 		}, function (err, token) {
 
 			if (err) {
-				logger.log('error', 'Error finding refresh token')
+				logger.info('Error finding refresh token')
 				// handle the error
 			}
 			if (!token) {
-				logger.log('error', 'No refresh token found')
+				logger.info('No refresh token found')
 				// no refresh token found
 			}
 			if (token.consumed) {
-				logger.log('error', 'Refresh token consumed')
+				logger.info('Refresh token consumed')
 				// the token got consumed already
 			}
 
-			logger.log('info', 'Found the token', token)
+			logger.info('Found the token')
+			logger.info(token)
 
 			// consume all previous refresh tokens
 			RefreshToken.updateMany({
 				userId: token.userId,
 				consumed: false
 			}, {
-				$set: {consumed: true}
+				// $set: {consumed: true}
+				consumed: true
 			});
 
-			logger.log('info', 'Updated refresh tokens to be consumed')
+			logger.info('Updated refresh tokens to be consumed')
 
 			var _refreshToken = new RefreshToken({
 				userId: token.userId
@@ -157,7 +161,8 @@ router.post('/', function (req, res, next) {
 
 			_refreshToken.save();
 
-			logger.log('info', 'Created new refresh token', _refreshToken)
+			logger.info('Created new refresh token')
+			logger.info(_refreshToken)
 
 			var _token = new Token({
 				refreshToken: _refreshToken.token,
@@ -166,7 +171,8 @@ router.post('/', function (req, res, next) {
 
 			_token.save();
 
-			logger.log('info', 'Created new token', _token)
+			logger.info('Created new token')
+			logger.info(_token)
 
 			var response = {
 				access_token: _token.accessToken,
@@ -175,7 +181,8 @@ router.post('/', function (req, res, next) {
 				token_type: _token.tokenType
 			};
 
-			logger.log('info', 'Sending response', response)
+			logger.info('Sending response')
+			logger.info(response)
 
 			// send the new token to the consumer
 			res.json(response);
