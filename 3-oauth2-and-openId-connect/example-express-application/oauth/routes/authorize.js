@@ -45,35 +45,6 @@ router.get('/', function(req, res, next) {
 
 	logger.info('Checking to see if client already exists')
 
-	// Client.findOne({
-	// 	clientId: clientId
-	// }, function (err, client) {
-
-	// 	if (err) {
-	// 		logger.info('Error thrown when finding client')
-
-	// 		// handle the error by passing it to the middleware
-	// 		next(err);
-	// 	}
-	// 	if (!client) {
-	// 		logger.info('No existing client, saving new client')
-
-	// 		var newClient = new Client({
-	// 			clientId: clientId,
-	// 			clientSecret: uuid.v4(),
-	// 			name: uuid.v4(),
-	// 			scope: scope,
-	// 			userId: uuid.v4(),
-	// 			redirectUri: redirectUri
-	// 		})
-
-	// 		logger.info(newClient)
-
-	// 		newClient.save()
-	// 	}
-
-	// })
-
 	Client.findOne({
 		clientId: clientId
 	}, function (err, client) {

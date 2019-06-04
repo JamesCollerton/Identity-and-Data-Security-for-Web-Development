@@ -6,7 +6,6 @@ const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.colorize(),
     winston.format.prettyPrint()
-    // winston.format.simple()
   ),
   transports: [
     new winston.transports.Console()
