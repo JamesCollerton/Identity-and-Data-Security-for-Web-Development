@@ -9,6 +9,9 @@ var usersRouter = require('./routes/users');
 var authorizeRouter = require('./routes/authorize');
 var tokenRouter = require('./routes/token');
 
+var OAuthError = require('./lib/error/errors/oautherror');
+var oAuthErrorHandler = require('./lib/error/handlers/oautherrorhandler')
+
 // Mongoose and connection to Mongo
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/oauth');
@@ -42,14 +45,6 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use(oAuthErrorHandler)
 
 module.exports = app;

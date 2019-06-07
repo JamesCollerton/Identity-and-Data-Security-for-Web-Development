@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+const OAuthError = require('../lib/error/errors/oautherror')
 const logger = require('../lib/util/logger')
 
 const uuid = require('node-uuid');
@@ -32,12 +33,15 @@ router.get('/', function(req, res, next) {
 
 	if (!responseType) {
 		logger.info("Cancel the request - missing response type")
+		throw new OAuthError('invalid_request', 'Missing parameter: response_type');
 	}
 	if (responseType !== 'code') {
 		logger.info("Unsupported response type")
+		throw new OAuthError('invalid_request', 'Missing parameter: code');
 	}
 	if (!clientId) {
 		logger.info("Cancel the request - client Id is missing")
+		throw new OAuthError('invalid_request', 'Missing parameter: client_id');
 	}
 
 	// Check if the client exists, if it does not then we should create
@@ -52,7 +56,7 @@ router.get('/', function(req, res, next) {
 		if (err) {
 			logger.info('Error finding client')
 			// handle the error by passing it to the middleware
-			next(err);
+			next(new OAuthError('server_error', 'Server errored finding client'));
 		}
 		if (!client) {
 			logger.info('No existing client, saving new client')
@@ -74,10 +78,12 @@ router.get('/', function(req, res, next) {
 		}
 		if (redirectUri !== client.redirectUri) {
 			logger.info('Redirect URI does not match client redirect URI')
+			next(new OAuthError('invalid_request', 'Mismatched client parameter: redirect_uri'));
 			// cancel the request
 		}
 		if (scope !== client.scope) {
 			logger.info('Scope does not match client scope')
+			next(new OAuthError('invalid_request', 'Mismatched client parameter: scope'));
 			// handle the scope
 		}
 
