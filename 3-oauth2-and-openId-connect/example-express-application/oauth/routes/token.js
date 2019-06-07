@@ -24,6 +24,7 @@ router.post('/', function (req, res, next) {
 
 	if (!grantType) {
 		logger.info('No grant type supplied')
+		throw new OAuthError('invalid_request', 'Missing parameter: grant_type');
 		// cancel this request
 	}
 
@@ -36,14 +37,17 @@ router.post('/', function (req, res, next) {
 		}, function(err, code) {
 			if (err) {
 				logger.info('Error finding auth code')
+				next(new OAuthError('server_error', 'Server errored finding authorisation code'));
 				// handle the error
 			}
 			if (!code) {
 				logger.info('No auth code')
+				next(new OAuthError('invalid_request', 'No such authorisation code'));
 				// no valid authorization code provided - cancel
 			}
 			if (code.consumed) {
 				logger.info('Auth code already consumed')
+				next(new OAuthError('invalid_request', 'Authorisation code already consumed'));
 				// the code got consumed already - cancel
 			}
 
@@ -56,6 +60,7 @@ router.post('/', function (req, res, next) {
 
 			if (code.redirectUri !== redirectUri) {
 				logger.info('Code redirect URI not equal to incoming redirect URI')
+				next(new OAuthError('invalid_request', 'Mismatched authorisation code parameter: redirect_uri'));
 				// cancel the request
 			}
 
@@ -68,10 +73,12 @@ router.post('/', function (req, res, next) {
 
 				if (error) {
 					logger.info('Error discovering client')
+					next(new OAuthError('server_error', 'Server errored finding client'));
 					// the client id provided was a mismatch or does not exist
 				}
 				if (!client) {
-					logger.info('The client id provided was a mismatch or does not exist')
+					logger.info('The client Id provided was a mismatch or does not exist')
+					next(new OAuthError('invalid_request', 'No such client'));
 					// the client id provided was a mismatch or does not exist
 				}
 
@@ -119,6 +126,7 @@ router.post('/', function (req, res, next) {
 	} else if (grantType === 'refresh_token') {
 		if (!refreshToken) {
 			logger.info('No refresh token provided')
+			throw new OAuthError('invalid_request', 'Missing parameter: refresh_token');
 			// no refresh token provided - cancel
 		}
 
@@ -130,14 +138,17 @@ router.post('/', function (req, res, next) {
 
 			if (err) {
 				logger.info('Error finding refresh token')
+				next(new OAuthError('server_error', 'Server errored finding refresh token'));
 				// handle the error
 			}
 			if (!token) {
 				logger.info('No refresh token found')
+				next(new OAuthError('invalid_request', 'No such refresh token'));
 				// no refresh token found
 			}
 			if (token.consumed) {
 				logger.info('Refresh token consumed')
+				next(new OAuthError('invalid_request', 'Refresh token already consumed'));
 				// the token got consumed already
 			}
 
