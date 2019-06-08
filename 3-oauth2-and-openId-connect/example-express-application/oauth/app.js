@@ -15,7 +15,6 @@ const oAuthErrorHandler = require('./lib/error/handlers/oautherrorhandler')
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/oauth');
 
-// Generating tokens
 const app = express();
 
 // view engine setup

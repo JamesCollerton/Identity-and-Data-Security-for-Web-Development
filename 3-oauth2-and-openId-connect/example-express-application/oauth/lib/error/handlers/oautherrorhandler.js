@@ -1,5 +1,9 @@
 const logger = require('../../util/logger')
 
+/*
+    Error handler for the application, pass this to the app to use,
+    pulls the error code, status and message from the thrown OAuthError.
+*/
 function handleError(err, req, res, next) {
 
     logger.info('Logging an error')
