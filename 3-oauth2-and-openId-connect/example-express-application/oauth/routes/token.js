@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 const logger = require('../lib/util/logger')
+const OAuthError = require('../lib/error/errors/oautherror')
+const oAuthErrorHandler = require('../lib/error/handlers/oautherrorhandler')
 
 var AuthCode = require('../lib/models/authcode');
 var Client = require('../lib/models/client');
@@ -24,7 +26,7 @@ router.post('/', function (req, res, next) {
 
 	if (!grantType) {
 		logger.info('No grant type supplied')
-		throw new OAuthError('invalid_request', 'Missing parameter: grant_type');
+		return oAuthErrorHandler(new OAuthError('invalid_request', 'Missing parameter: grant_type'), req, res, next);
 		// cancel this request
 	}
 
@@ -35,19 +37,20 @@ router.post('/', function (req, res, next) {
 		AuthCode.findOne({
 			code: authCode
 		}, function(err, code) {
+
 			if (err) {
 				logger.info('Error finding auth code')
-				next(new OAuthError('server_error', 'Server errored finding authorisation code'));
+				return oAuthErrorHandler(new OAuthError('server_error', 'Server errored finding authorisation code'), req, res, next);
 				// handle the error
 			}
 			if (!code) {
 				logger.info('No auth code')
-				next(new OAuthError('invalid_request', 'No such authorisation code'));
+				return oAuthErrorHandler(new OAuthError('invalid_request', 'No such authorisation code'), req, res, next);
 				// no valid authorization code provided - cancel
 			}
 			if (code.consumed) {
 				logger.info('Auth code already consumed')
-				next(new OAuthError('invalid_request', 'Authorisation code already consumed'));
+				return oAuthErrorHandler(new OAuthError('invalid_request', 'Authorisation code already consumed'), req, res, next);
 				// the code got consumed already - cancel
 			}
 
@@ -60,7 +63,7 @@ router.post('/', function (req, res, next) {
 
 			if (code.redirectUri !== redirectUri) {
 				logger.info('Code redirect URI not equal to incoming redirect URI')
-				next(new OAuthError('invalid_request', 'Mismatched authorisation code parameter: redirect_uri'));
+				return oAuthErrorHandler(new OAuthError('invalid_request', 'Mismatched authorisation code parameter: redirect_uri'), req, res, next);
 				// cancel the request
 			}
 
@@ -73,12 +76,12 @@ router.post('/', function (req, res, next) {
 
 				if (error) {
 					logger.info('Error discovering client')
-					next(new OAuthError('server_error', 'Server errored finding client'));
+					return oAuthErrorHandler(new OAuthError('server_error', 'Server errored finding client'), req, res, next);
 					// the client id provided was a mismatch or does not exist
 				}
 				if (!client) {
 					logger.info('The client Id provided was a mismatch or does not exist')
-					next(new OAuthError('invalid_request', 'No such client'));
+					return oAuthErrorHandler(new OAuthError('invalid_request', 'No such client'), req, res, next);
 					// the client id provided was a mismatch or does not exist
 				}
 
@@ -126,7 +129,7 @@ router.post('/', function (req, res, next) {
 	} else if (grantType === 'refresh_token') {
 		if (!refreshToken) {
 			logger.info('No refresh token provided')
-			throw new OAuthError('invalid_request', 'Missing parameter: refresh_token');
+			return oAuthErrorHandler(new OAuthError('invalid_request', 'Missing parameter: refresh_token'), req, res, next);
 			// no refresh token provided - cancel
 		}
 
@@ -138,17 +141,17 @@ router.post('/', function (req, res, next) {
 
 			if (err) {
 				logger.info('Error finding refresh token')
-				next(new OAuthError('server_error', 'Server errored finding refresh token'));
+				return oAuthErrorHandler(new OAuthError('server_error', 'Server errored finding refresh token'), req, res, next);
 				// handle the error
 			}
 			if (!token) {
 				logger.info('No refresh token found')
-				next(new OAuthError('invalid_request', 'No such refresh token'));
+				return oAuthErrorHandler(new OAuthError('invalid_request', 'No such refresh token'), req, res, next);
 				// no refresh token found
 			}
 			if (token.consumed) {
 				logger.info('Refresh token consumed')
-				next(new OAuthError('invalid_request', 'Refresh token already consumed'));
+				return oAuthErrorHandler(new OAuthError('invalid_request', 'Refresh token already consumed'), req, res, next);
 				// the token got consumed already
 			}
 

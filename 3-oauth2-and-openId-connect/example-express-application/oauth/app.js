@@ -1,26 +1,22 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authorizeRouter = require('./routes/authorize');
-var tokenRouter = require('./routes/token');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const authorizeRouter = require('./routes/authorize');
+const tokenRouter = require('./routes/token');
 
-var OAuthError = require('./lib/error/errors/oautherror');
-var oAuthErrorHandler = require('./lib/error/handlers/oautherrorhandler')
+const oAuthErrorHandler = require('./lib/error/handlers/oautherrorhandler')
 
 // Mongoose and connection to Mongo
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/oauth');
 
 // Generating tokens
-var uuid = require('node-uuid');
-var token = uuid.v4();
-
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -14,6 +14,10 @@ function handleError(err, req, res, next) {
         res.set('WWW-Authenticate', header);
     }
     
+    logger.info("Error status " + err.status)
+    logger.info("Error code " + err.code)
+    logger.info("Error message " + err.message)
+
     res.status(err.status).send({
         error: err.code,
         description: err.message
