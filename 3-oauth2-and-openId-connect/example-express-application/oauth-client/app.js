@@ -8,20 +8,65 @@ const request = require('request');
 /*
     Check client authorization
 */
-request('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', { json: true }, (err, res, body) => {
-  if (err) { return console.log(err); }
-  console.log(body.url);
-  console.log(body.explanation);
-});
+function checkClientAuthorization() {
+    request(
+        'http://localhost:3000/authorize?response_type=code&client_id=1&scope=s&state=s', 
+        { json: true }, 
+        (err, res, body) => {
+            if (err) { return console.log(err); }
+            console.log(body);
+            retrieveAccessToken(body.code)
+    });
+}
 
 /*
     Retrieve token
 */
+function retrieveAccessToken(authorizationCode) {
+    request({
+        url: 'http://localhost:3000/token',
+        method: 'POST',
+        json: {
+            grant_type: "authorization_code",
+            code: authorizationCode,
+            client_id: "1"
+        }
+      }, function(error, response, body){
+        console.log(body);
+        refreshToken(body.access_token, body.refresh_token)
+    });
+}
 
 /*
     Refresh token
 */
+function refreshToken(accessToken, refreshToken) {
+    request({
+        url: 'http://localhost:3000/token',
+        method: 'POST',
+        json: {
+            grant_type: "refresh_token",
+            code: accessToken,
+            refresh_token: refreshToken,
+            client_id: "1"
+        }
+      }, function(error, response, body){
+        console.log(body);
+        getUsers(body.access_token)
+    });
+}
 
 /*
     Get users
 */
+function getUsers(accessToken) {
+    request({
+        url: 'http://localhost:3000/users',
+        method: 'GET',
+        headers: {'authorization': 'code ' + accessToken}
+      }, function(error, response, body){
+        console.log(body);
+    });
+}
+
+checkClientAuthorization()
