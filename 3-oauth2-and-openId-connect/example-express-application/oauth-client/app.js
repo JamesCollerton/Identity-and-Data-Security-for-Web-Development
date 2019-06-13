@@ -9,9 +9,10 @@ const request = require('request');
     Check client authorization
 */
 function checkClientAuthorization() {
+    console.log("Checking the client authorization")
     request(
-        'http://localhost:3000/authorize?response_type=code&client_id=1&scope=s&state=s', 
-        { json: true }, 
+        'http://localhost:3000/authorize?response_type=code&client_id=1&scope=s&state=s',
+        { json: true },
         (err, res, body) => {
             if (err) { return console.log(err); }
             console.log(body);
@@ -23,6 +24,7 @@ function checkClientAuthorization() {
     Retrieve token
 */
 function retrieveAccessToken(authorizationCode) {
+    console.log("Retrieving an access token for authorization code " + authorizationCode)
     request({
         url: 'http://localhost:3000/token',
         method: 'POST',
@@ -41,6 +43,7 @@ function retrieveAccessToken(authorizationCode) {
     Refresh token
 */
 function refreshToken(accessToken, refreshToken) {
+    console.log("Refreshing the token for access token " + accessToken + " and refresh token " + refreshToken)
     request({
         url: 'http://localhost:3000/token',
         method: 'POST',
@@ -60,6 +63,7 @@ function refreshToken(accessToken, refreshToken) {
     Get users
 */
 function getUsers(accessToken) {
+    console.log("Getting users with access token " + accessToken)
     request({
         url: 'http://localhost:3000/users',
         method: 'GET',

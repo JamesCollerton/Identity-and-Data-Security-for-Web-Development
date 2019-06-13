@@ -1,5 +1,7 @@
 var Token = require('../models/token');
 
+const OAuthError = require('../error/errors/oautherror')
+
 const logger = require('../util/logger')
 
 /*
@@ -41,23 +43,28 @@ var authorize = function(req, res, next) {
 
     if (!accessToken) {
         logger.info('No access token found')
+        throw new OAuthError('unauthorized_client', 'No access token supplied');
         // no access token got provided - cancel with a 401
     }
     Token.findOne({
         accessToken: accessToken
     }, function(err, token) {
+
         // Same as in above example
         if (err) {
             logger.info('Error finding access token')
+            next(new OAuthError('server_error', 'Error retrieving access token for request'));
             // handle the error
         }
         if (!token) {
             logger.info('No access token found')
+            next(new OAuthError('unauthorized_client', 'No matching access token supplied'));
             // no token found - cancel
         }
 
         if (token.consumed) {
             logger.info('Token has already been consumed')
+            next(new OAuthError('unauthorized_client', 'Token has already been consumed'));
             // the token got consumed already - cancel
         }
 
