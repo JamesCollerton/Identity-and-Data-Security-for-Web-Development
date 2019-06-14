@@ -5,10 +5,11 @@ const logger = require('../lib/util/logger')
 const OAuthError = require('../lib/error/errors/oautherror')
 const oAuthErrorHandler = require('../lib/error/handlers/oautherrorhandler')
 
-var AuthCode = require('../lib/models/authcode');
-var Client = require('../lib/models/client');
-var Token = require('../lib/models/token');
-var RefreshToken = require('../lib/models/refreshtoken');
+const AuthCode = require('../lib/models/authcode');
+const Client = require('../lib/models/client');
+const Token = require('../lib/models/token');
+const RefreshToken = require('../lib/models/refreshtoken');
+const IdToken = require('../lib/models/idtoken');
 
 /*
 	This is the end point that is used to issue the tokens themselves. We take
@@ -95,30 +96,61 @@ router.post('/', function (req, res, next) {
 				});
 				_refreshToken.save();
 
-				logger.info('Created new refresh token')
-				logger.info(_refreshToken)
+				if (client.scope && (client.scope.indexOf('openid') >= 0)) {
 
-				var _token = new Token({
-					refreshToken: _refreshToken.token,
-					userId: code.userId
-				});
-				_token.save();
+					// An OpenID Connect request
+					var _idToken = new IdToken({
+						iss: client.redirectUri,
+						aud: client.clientId,
+						userId: code.userId
+					});
 
-				logger.info('Created new token')
-				logger.info(_token)
+					_idToken.save();
 
-				// send the new token to the consumer
-				var response = {
-					access_token: _token.accessToken,
-					refresh_token: _token.refreshToken,
-					expires_in: _token.expiresIn,
-					token_type: _token.tokenType
-				};
+					_token = new Token({
+						refreshToken: _refreshToken.token,
+						idToken: _idToken.sub,
+						userId: code.userId
+					});
 
-				logger.info('Sending response')
-				logger.info(response)
+					_token.save();
 
-				res.json(response);
+					// send the token to the consumer
+					response = {
+						access_token: _token.accessToken,
+						refresh_token: _token.refreshToken,
+						id_token: _idToken.sub,
+						expires_in: _token.expiresIn,
+						token_type: _token.tokenType
+					};
+
+					res.json(response);
+				} else {
+					logger.info('Created new refresh token')
+					logger.info(_refreshToken)
+
+					var _token = new Token({
+						refreshToken: _refreshToken.token,
+						userId: code.userId
+					});
+					_token.save();
+
+					logger.info('Created new token')
+					logger.info(_token)
+
+					// send the new token to the consumer
+					var response = {
+						access_token: _token.accessToken,
+						refresh_token: _token.refreshToken,
+						expires_in: _token.expiresIn,
+						token_type: _token.tokenType
+					};
+
+					logger.info('Sending response')
+					logger.info(response)
+
+					res.json(response);
+				}
 			});
 		});
 

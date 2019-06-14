@@ -44,6 +44,10 @@ router.get('/', function(req, res, next) {
 		throw new OAuthError('invalid_request', 'Missing parameter: client_id');
 	}
 
+	if(scope && scope.indexOf('openid') > 0) {
+		logger.info("Using OpenId to authenticate the user, this is not implemented")
+	}
+
 	// Check if the client exists, if it does not then we should create
 	// one in the DB
 

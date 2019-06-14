@@ -10,6 +10,7 @@ var TokenModel = function() {
 	var tokenSchema = mongoose.Schema({
 		userId: { type: String },
 		refreshToken: { type: String, unique: true },
+		idToken : { type: String },
 		accessToken: { type: String, default: uuid.v4 },
 		expiresIn: { type: String, default: '10800' },
 		tokenType: { type: String, default: 'bearer' },
