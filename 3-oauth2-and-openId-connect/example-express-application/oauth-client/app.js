@@ -8,7 +8,7 @@ const request = require('request');
 /*
     Check client authorization
 */
-function checkClientAuthorization() {
+function checkClientAuthorization(next) {
     console.log("Checking the client authorization")
     request(
         'http://localhost:3000/authorize?response_type=code&client_id=1&scope=openid&state=s',
@@ -16,7 +16,7 @@ function checkClientAuthorization() {
         (err, res, body) => {
             if (err) { return console.log(err); }
             console.log(body);
-            retrieveAccessToken(body.code)
+            next(body.code)
     });
 }
 
@@ -35,14 +35,14 @@ function retrieveAccessToken(authorizationCode) {
         }
       }, function(error, response, body){
         console.log(body);
-        refreshToken(authorizationCode, body.access_token, body.refresh_token)
+        refreshToken(body.access_token, body.refresh_token)
     });
 }
 
 /*
     Refresh token
 */
-function refreshToken(authorizationCode, accessToken, refreshToken) {
+function refreshToken(accessToken, refreshToken) {
     console.log("Refreshing the token for access token " + accessToken + " and refresh token " + refreshToken)
     request({
         url: 'http://localhost:3000/token',
@@ -55,14 +55,14 @@ function refreshToken(authorizationCode, accessToken, refreshToken) {
         }
       }, function(error, response, body){
         console.log(body);
-        getUsers(authorizationCode, body.access_token)
+        getUsers(body.access_token)
     });
 }
 
 /*
     Get users
 */
-function getUsers(authorizationCode, accessToken) {
+function getUsers(accessToken) {
     console.log("Getting users with access token " + accessToken)
     request({
         url: 'http://localhost:3000/users',
@@ -70,7 +70,7 @@ function getUsers(authorizationCode, accessToken) {
         headers: {'authorization': 'code ' + accessToken}
       }, function(error, response, body){
         console.log(body);
-        issueOpenIdToken(authorizationCode)
+        checkClientAuthorization(issueOpenIdToken)
     });
 }
 
@@ -92,4 +92,4 @@ function issueOpenIdToken(authorizationCode) {
     });
 }
 
-checkClientAuthorization()
+checkClientAuthorization(retrieveAccessToken)
