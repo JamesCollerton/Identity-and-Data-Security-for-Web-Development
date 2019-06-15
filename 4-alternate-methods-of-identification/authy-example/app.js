@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-const secureConfig = require('./config/secure_config/config')
+const secureConfig = require('./config/secure-config/config')
 
 const bodyParser = require('body-parser');
 const authy = require('authy')(secureConfig.api_key);
