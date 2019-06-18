@@ -4,13 +4,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-const secureConfig = require('./config/secure-config/config')
-
 const bodyParser = require('body-parser');
-const authy = require('authy')(secureConfig.api_key);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var registerRouter = require('./routes/register');
 
 var app = express();
 
@@ -24,11 +22,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// added as part of demo
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/register', registerRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
