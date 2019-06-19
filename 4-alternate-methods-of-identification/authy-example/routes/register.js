@@ -20,6 +20,8 @@ router.post('/', function (req, res, next) {
         //{ message: 'User created successfully.',
         // user: { id: 16782433 },
         // success: true }
+        console.log("Received response from authy")
+        console.log(response)
         res.send(response);
     });
 
