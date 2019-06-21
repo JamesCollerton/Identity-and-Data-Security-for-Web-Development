@@ -6,13 +6,15 @@ var router = express.Router();
 
 router.post('/', function (req, res, next) {
 
-    console.log("In sms")
+    console.log("In verify")
 
     var userId = req.body.userId;
+    var verificationCode = req.body.verificationCode;
 
     console.log("User Id: " + userId)
+    console.log("Verification Code: " + verificationCode)
 
-    authy.request_sms(userId, function(err, response) {
+    authy.verify(userId, verificationCode, function(err, response) {
         if(err){
             if(response && response.json) {
                 console.log(response)
