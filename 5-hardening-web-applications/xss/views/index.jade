@@ -1,5 +1,12 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Registration
+  form(method='POST', action='/register')
+    fieldset
+      legend Your details
+      label(for='firstname') Firstname
+      input(id='firstname', name='firstname', type='text')
+      label(for='lastname') Lastname
+      input(id='lastname', name='lastname', type='text')
+      input(type='submit', value='Submit')
