@@ -15,4 +15,4 @@ Examples and exercises as I work through Identity and Data Security for Web Deve
   - Client-side caching
   - MIME type sniffing
 
-Note, this doesn't cover SSL/ TLS and PKI as I am using the bulletproof SSL/ TLS book for that.
+Note, this doesn't cover SSL/ TLS and PKI as I am using the 'Bulletproof SSL/ TLS' book for that.
