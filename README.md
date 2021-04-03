@@ -1,6 +1,6 @@
 # Identity and Data Security for Web Development
 
-Examples and exercises as I work through Identity and Data Security for Web Development by O'Reilly. Topics covered include:
+Examples and exercises as I work through [Identity and Data Security for Web Development by O'Reilly](https://www.oreilly.com/library/view/identity-and-data/9781491937006/). Topics covered include:
 
 - Hashing functions and salt
 - Using captchas
