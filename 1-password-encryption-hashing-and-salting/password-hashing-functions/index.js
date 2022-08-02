@@ -3,6 +3,10 @@ const crypto = require('crypto');
 
 // Encrypting
 
+// When a user sends us their password to log in we will use this
+// function to decrypt it. It takes in the password they will send
+// us as they try to log in (unhashedPassword), then the salt and the
+// password we stored in the databse (hashedPassword).
 function bcrypt_decrypt(unhashedPassword, salt, hashedPassword) {
 	bcrypt.hash(unhashedPassword, salt, function(err, key) {
 		console.log("bcrypt hash " + key)
